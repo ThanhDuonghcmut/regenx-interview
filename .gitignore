@@ -1,0 +1,4 @@
+.vscode
+streamlit_app/venv
+streamlit_app/.env
+supabase/.temp
