@@ -10,11 +10,7 @@ security = HTTPBearer()
 def get_current_user(credentials = Depends(security)):
     try:
         token = credentials.credentials
-        if token.startwith("Bearer "):
-            token = token.split(" ")[1]
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        print(payload)
-        return "1"
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"], options={"verify_aud": False})
+        return payload['sub']
     except:
-        print("nothing to print")
-        return "2"
+        return None

@@ -52,8 +52,8 @@ def upload_image(image_bytes):
     return res.json()
 
 # === Gửi dữ liệu tới Edge Function để dự đoán ===
-def predict_yield(data):
-    res = requests.post(f"{API_BASE}/predict_yield",
+def upload_field_data(data):
+    res = requests.post(f"{API_BASE}/field",
                         headers={"Authorization": f"Bearer {st.session_state.token}"},
                         json=data)
     return res.json()
@@ -80,43 +80,28 @@ def chatbot_ui():
         image = st.file_uploader("Tải ảnh", type=["jpg", "png"])
         if image:
             info = upload_image(image)
-            print(info)
-            # with st.spinner("Đang phân tích ảnh..."):
-            #     info = analyze_image(image)
-            #     st.session_state.collected.update(info)
-            #     st.session_state.chat_state = "ask_area"
+            st.session_state.collected["forecast_id"] = info['forecast_id']
+            
+            if info["is_field_empty"]:
+                st.session_state.chat_state = "ask_more_info"
+            else:
+                st.session_state.chat_state = "analyse"
+            st.rerun()
 
-    # elif st.session_state.chat_state == "ask_area":
-    #     area = st.text_input("Diện tích trồng (m²)")
-    #     if st.button("Tiếp tục"):
-    #         try:
-    #             st.session_state.collected["area"] = float(area)
-    #             st.session_state.chat_state = "ask_count"
-    #         except:
-    #             st.error("Vui lòng nhập số hợp lệ")
-
-    # elif st.session_state.chat_state == "ask_count":
-    #     count = st.text_input("Số lượng cây")
-    #     if st.button("Tiếp tục"):
-    #         try:
-    #             st.session_state.collected["plant_count"] = int(count)
-    #             st.session_state.chat_state = "ask_location"
-    #         except:
-    #             st.error("Vui lòng nhập số nguyên hợp lệ")
-
-    # elif st.session_state.chat_state == "ask_location":
-    #     location = st.text_input("Địa điểm trồng (VD: Lâm Đồng)")
-    #     if st.button("Dự đoán"):
-    #         st.session_state.collected["location"] = location
-    #         st.session_state.chat_state = "predict"
-
-    # elif st.session_state.chat_state == "predict":
-    #     with st.spinner("Đang dự đoán năng suất..."):
-    #         result = predict_yield(st.session_state.collected)
-    #         st.success(f"🌾 Năng suất dự đoán: **{result['yield']} kg**")
-    #         st.session_state.collected["predicted_yield"] = result["yield"]
-    #         st.session_state.collected["timestamp"] = datetime.utcnow().isoformat()
-    #         save_prediction(st.session_state.collected)
+    elif st.session_state.chat_state == "ask_more_info":
+        try:
+            area = st.text_input("Diện tích trồng (m²)")
+            st.session_state.collected["area"] = float(area)
+            count = st.text_input("Số lượng cây")
+            st.session_state.collected["total_plants"] = int(count)
+            location = st.text_input("Địa điểm trồng (VD: Lâm Đồng)")
+            st.session_state.collected["location"] = location
+            st.session_state.chat_state = "analyse"
+            res = upload_field_data({"area": area, "total_plants": count, "location": location})
+            print(res)
+            st.rerun()
+        except:
+            st.error("Vui lòng nhập số hợp lệ")
 
     # elif st.session_state.chat_state == "quick_predict":
     #     st.info("Chỉ cần tải ảnh mới, hệ thống sẽ dùng dữ liệu cũ.")
