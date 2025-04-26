@@ -70,11 +70,6 @@ def save_prediction(data):
 def chatbot_ui():
     st.title("🤖 Chatbot Năng Suất Cà Phê")
 
-    # if st.button("➕ Tạo cuộc trò chuyện mới"):
-    #     st.session_state.chat_state = "quick_predict"
-    #     st.session_state.collected = {}
-    #     st.experimental_rerun()
-
     if st.session_state.chat_state == "wait_image":
         st.info("Vui lòng tải ảnh cây cà phê")
         image = st.file_uploader("Tải ảnh", type=["jpg", "png"])
@@ -102,28 +97,6 @@ def chatbot_ui():
             st.rerun()
         except:
             st.error("Vui lòng nhập số hợp lệ")
-
-    # elif st.session_state.chat_state == "quick_predict":
-    #     st.info("Chỉ cần tải ảnh mới, hệ thống sẽ dùng dữ liệu cũ.")
-    #     image = st.file_uploader("Tải ảnh mới", type=["jpg", "png"], key="quick_img")
-    #     if image:
-    #         with st.spinner("Phân tích ảnh..."):
-    #             info = analyze_image(image)
-    #             st.session_state.collected.update(info)
-    #             last_data = get_last_data()
-    #             if not last_data:
-    #                 st.error("Không có dữ liệu cũ! Vui lòng dùng chế độ đầy đủ.")
-    #                 st.session_state.chat_state = "wait_image"
-    #                 return
-    #             # Sử dụng dữ liệu cũ
-    #             for k in ["area", "plant_count", "location", "temperature", "humidity", "rainfall", "predicted_yield", "timestamp"]:
-    #                 if k in last_data:
-    #                     st.session_state.collected[f"last_{k}" if k in ["predicted_yield", "timestamp"] else k] = last_data[k]
-    #             result = predict_yield(st.session_state.collected)
-    #             st.success(f"🌾 Năng suất mới: **{result['yield']} kg**")
-    #             st.session_state.collected["predicted_yield"] = result["yield"]
-    #             st.session_state.collected["timestamp"] = datetime.utcnow().isoformat()
-    #             save_prediction(st.session_state.collected)
 
 # === App Entry ===
 if not st.session_state.token:
